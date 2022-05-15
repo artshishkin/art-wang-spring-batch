@@ -3,6 +3,7 @@ package net.shyshkin.study.helloworld.config;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.helloworld.listener.HelloWorldJobExecutionListener;
+import net.shyshkin.study.helloworld.listener.HelloWorldStepExecutionListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -21,11 +22,13 @@ public class BatchConfiguration {
 
     private final JobBuilderFactory jobs;
     private final StepBuilderFactory steps;
-    private final HelloWorldJobExecutionListener hwListener;
+    private final HelloWorldJobExecutionListener hwJobListener;
+    private final HelloWorldStepExecutionListener hwStepListener;
 
     @Bean
     public Step step1() {
         return steps.get("step1")
+                .listener(hwStepListener)
                 .tasklet(helloWorldTasklet())
                 .build();
     }
@@ -40,7 +43,7 @@ public class BatchConfiguration {
     @Bean
     public Job helloWorldJob() {
         return jobs.get("helloWorldJob")
-                .listener(hwListener)
+                .listener(hwJobListener)
                 .start(step1())
                 .build();
     }
