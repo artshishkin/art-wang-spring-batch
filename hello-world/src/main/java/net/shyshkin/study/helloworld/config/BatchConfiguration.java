@@ -39,6 +39,7 @@ public class BatchConfiguration {
         return (stepContribution, chunkContext) -> {
             var my_name = Optional.ofNullable(stepContribution.getStepExecution().getJobExecution().getExecutionContext().get("my name"));
             log.debug("Hello {}", my_name.orElse("World"));
+            log.debug("Job parameters: {}", stepContribution.getStepExecution().getJobExecution().getJobParameters());
             return RepeatStatus.FINISHED;
         };
     }
