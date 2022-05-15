@@ -13,6 +13,7 @@ public class HelloWorldJobExecutionListener implements JobExecutionListener {
     public void beforeJob(JobExecution jobExecution) {
         log.debug("Before Job: {}, with job exec context: {}\nfull jobExecution: {}",
                 jobExecution.getJobInstance().getJobName(), jobExecution.getExecutionContext(), jobExecution);
+        jobExecution.getExecutionContext().put("my name", "Art");
     }
 
     @Override
