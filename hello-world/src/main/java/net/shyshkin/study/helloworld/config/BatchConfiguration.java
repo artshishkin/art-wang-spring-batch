@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.helloworld.listener.HelloWorldJobExecutionListener;
 import net.shyshkin.study.helloworld.listener.HelloWorldStepExecutionListener;
+import net.shyshkin.study.helloworld.processor.InMemItemProcessor;
+import net.shyshkin.study.helloworld.reader.InMemReader;
+import net.shyshkin.study.helloworld.writer.ConsoleItemWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -26,6 +29,7 @@ public class BatchConfiguration {
     private final StepBuilderFactory steps;
     private final HelloWorldJobExecutionListener hwJobListener;
     private final HelloWorldStepExecutionListener hwStepListener;
+    private final InMemItemProcessor processor;
 
     @Bean
     public Step step1() {
@@ -45,10 +49,26 @@ public class BatchConfiguration {
     }
 
     @Bean
+    public Step step2() {
+        return steps.get("step2")
+                .<Integer, Integer>chunk(3)
+                .reader(reader())
+                .processor(processor)
+                .writer(new ConsoleItemWriter())
+                .build();
+    }
+
+    @Bean
+    InMemReader reader() {
+        return new InMemReader();
+    }
+
+    @Bean
     public Job helloWorldJob() {
         return jobs.get("helloWorldJob")
                 .listener(hwJobListener)
                 .start(step1())
+                .next(step2())
                 .build();
     }
 
