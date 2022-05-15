@@ -14,6 +14,8 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Optional;
+
 @Slf4j
 @EnableBatchProcessing
 @Configuration
@@ -35,7 +37,8 @@ public class BatchConfiguration {
 
     private Tasklet helloWorldTasklet() {
         return (stepContribution, chunkContext) -> {
-            log.debug("Hello World");
+            var my_name = Optional.ofNullable(stepContribution.getStepExecution().getJobExecution().getExecutionContext().get("my name"));
+            log.debug("Hello {}", my_name.orElse("World"));
             return RepeatStatus.FINISHED;
         };
     }
