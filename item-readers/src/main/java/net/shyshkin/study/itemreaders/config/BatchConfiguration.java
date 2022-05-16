@@ -52,6 +52,7 @@ public class BatchConfiguration {
                 .resource(inputFile)
                 .linesToSkip(1)
                 .delimited()
+                .delimiter("|")
                 .names("productID", "productName", "productDesc", "price", "unit")
                 .targetType(Product.class)
                 .build();

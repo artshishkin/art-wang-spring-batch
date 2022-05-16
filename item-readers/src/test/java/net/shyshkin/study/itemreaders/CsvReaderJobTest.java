@@ -38,7 +38,7 @@ class CsvReaderJobTest {
 
     private JobParameters defaultJobParameters() {
         JobParametersBuilder paramsBuilder = new JobParametersBuilder();
-        paramsBuilder.addString("inputFile", "../input/product.csv");
+        paramsBuilder.addString("inputFile", "../input/productPipe.csv");
         return paramsBuilder.toJobParameters();
     }
 
