@@ -11,51 +11,51 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.xml.StaxEventItemReader;
+import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 @Slf4j
 @EnableBatchProcessing
 @Configuration
 @RequiredArgsConstructor
-public class CsvReadBatchConfiguration {
+public class XmlReadBatchConfiguration {
 
     private final JobBuilderFactory jobs;
     private final StepBuilderFactory steps;
     private final ConsoleItemWriter<Product> writer;
 
     @Bean
-    public Job csvReadJob() {
-        return jobs.get("csvReadJob")
+    public Job xmlReadJob() {
+        return jobs.get("xmlReadJob")
                 .incrementer(new RunIdIncrementer())
-                .start(readCsvStep())
+                .start(readXmlStep())
                 .build();
     }
 
     @Bean
-    Step readCsvStep() {
-        return steps.get("readCsv")
+    Step readXmlStep() {
+        return steps.get("readXml")
                 .<Product, Product>chunk(3)
-                .reader(flatFileItemReader(null))
+                .reader(xmlReader(null))
                 .writer(writer)
                 .build();
     }
 
     @Bean
     @StepScope
-    FlatFileItemReader<Product> flatFileItemReader(@Value("#{jobParameters['inputFile']}") FileSystemResource inputFile) {
-        return new FlatFileItemReaderBuilder<Product>()
-                .name("productCsvReader")
+    StaxEventItemReader<Product> xmlReader(@Value("#{jobParameters['xmlInputFile']}") FileSystemResource inputFile) {
+        Jaxb2Marshaller unmarshaller = new Jaxb2Marshaller();
+        unmarshaller.setClassesToBeBound(Product.class);
+        return new StaxEventItemReaderBuilder<Product>()
+                .name("productXmlReader")
                 .resource(inputFile)
-                .linesToSkip(1)
-                .delimited()
-                .delimiter("|")
-                .names("productID", "productName", "productDesc", "price", "unit")
-                .targetType(Product.class)
+                .addFragmentRootElements("product")
+                .unmarshaller(unmarshaller)
                 .build();
     }
 

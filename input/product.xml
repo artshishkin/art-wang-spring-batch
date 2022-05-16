@@ -1,0 +1,23 @@
+<products>
+    <product>
+        <productID>1</productID>
+        <productName>Apple (XML)</productName>
+        <productDesc>apple cell phone</productDesc>
+        <price>500.00</price>
+        <unit>10</unit>
+    </product>
+    <product>
+        <productID>2</productID>
+        <productName>Dell (XML)</productName>
+        <productDesc>dell computer</productDesc>
+        <price>3000</price>
+        <unit>5</unit>
+    </product>
+    <product>
+        <productID>3</productID>
+        <productName>office (XML)</productName>
+        <productDesc>ms office software</productDesc>
+        <price>196</price>
+        <unit>23</unit>
+    </product>
+</products>
