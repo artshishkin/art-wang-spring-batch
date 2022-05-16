@@ -1,12 +1,12 @@
 package net.shyshkin.study.itemreaders;
 
 import net.shyshkin.study.itemreaders.config.BatchConfiguration;
-import net.shyshkin.study.itemreaders.config.CsvReadBatchConfiguration;
+import net.shyshkin.study.itemreaders.config.XmlReadBatchConfiguration;
 import net.shyshkin.study.itemreaders.model.Product;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.*;
-import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.JobRepositoryTestUtils;
 import org.springframework.batch.test.MetaDataInstanceFactory;
@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @SpringBatchTest
-@SpringBootTest(classes = {BatchConfiguration.class, CsvReadBatchConfiguration.class})
+@SpringBootTest(classes = {BatchConfiguration.class, XmlReadBatchConfiguration.class})
 @EnableAutoConfiguration
-class CsvReaderJobTest {
+class XmlReaderJobTest {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
@@ -33,7 +33,7 @@ class CsvReaderJobTest {
     private JobRepositoryTestUtils jobRepositoryTestUtils;
 
     @Autowired
-    FlatFileItemReader<Product> itemReader;
+    StaxEventItemReader<Product> itemReader;
 
     @AfterEach
     void tearDown() {
@@ -42,12 +42,12 @@ class CsvReaderJobTest {
 
     private JobParameters defaultJobParameters() {
         JobParametersBuilder paramsBuilder = new JobParametersBuilder();
-        paramsBuilder.addString("inputFile", "../input/productPipe.csv");
+        paramsBuilder.addString("xmlInputFile", "../input/product.xml");
         return paramsBuilder.toJobParameters();
     }
 
     @Test
-    void csvReaderJobText() throws Exception {
+    void xmlReaderJobText() throws Exception {
 
         //when
         JobExecution jobExecution = jobLauncherTestUtils.launchJob(defaultJobParameters());
@@ -55,16 +55,16 @@ class CsvReaderJobTest {
         ExitStatus actualJobExitStatus = jobExecution.getExitStatus();
 
         //then
-        assertThat(actualJobInstance.getJobName()).isEqualTo("csvReadJob");
+        assertThat(actualJobInstance.getJobName()).isEqualTo("xmlReadJob");
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
 
     }
 
     @Test
-    void csvReaderStepTest() {
+    void xmlReaderStepTest() {
 
         //when
-        JobExecution jobExecution = jobLauncherTestUtils.launchStep("readCsv", defaultJobParameters());
+        JobExecution jobExecution = jobLauncherTestUtils.launchStep("readXml", defaultJobParameters());
         var actualStepExecutions = jobExecution.getStepExecutions();
         ExitStatus actualJobExitStatus = jobExecution.getExitStatus();
 
@@ -77,7 +77,7 @@ class CsvReaderJobTest {
     }
 
     @Test
-    void csvReaderStepScopeTest() throws Exception {
+    void xmlReaderStepScopeTest() throws Exception {
         //given
         StepExecution stepExecution = MetaDataInstanceFactory
                 .createStepExecution(defaultJobParameters());
