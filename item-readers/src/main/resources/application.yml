@@ -1,6 +1,8 @@
 logging.level:
   net.shyshkin: debug
 
+app.csv.file-path.product: input/product.csv
+
 ---
 spring:
   config:
