@@ -2,25 +2,17 @@ package net.shyshkin.study.itemreaders;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobInstance;
+import org.springframework.batch.core.*;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.JobRepositoryTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBatchTest
 @SpringBootTest
-@TestPropertySource(
-        properties = {
-                "app.csv.file-path.product=../input/product.csv"
-        }
-)
 class CsvReaderJobTest {
 
     @Autowired
@@ -34,11 +26,17 @@ class CsvReaderJobTest {
         jobRepositoryTestUtils.removeJobExecutions();
     }
 
+    private JobParameters defaultJobParameters() {
+        JobParametersBuilder paramsBuilder = new JobParametersBuilder();
+        paramsBuilder.addString("inputFile", "../input/product.csv");
+        return paramsBuilder.toJobParameters();
+    }
+
     @Test
     void csvReaderJobText() throws Exception {
 
         //when
-        JobExecution jobExecution = jobLauncherTestUtils.launchJob();
+        JobExecution jobExecution = jobLauncherTestUtils.launchJob(defaultJobParameters());
         JobInstance actualJobInstance = jobExecution.getJobInstance();
         ExitStatus actualJobExitStatus = jobExecution.getExitStatus();
 
@@ -50,10 +48,9 @@ class CsvReaderJobTest {
 
     @Test
     void csvReaderStepTest() {
-        //given
 
         //when
-        JobExecution jobExecution = jobLauncherTestUtils.launchStep("readCsv");
+        JobExecution jobExecution = jobLauncherTestUtils.launchStep("readCsv", defaultJobParameters());
         var actualStepExecutions = jobExecution.getStepExecutions();
         ExitStatus actualJobExitStatus = jobExecution.getExitStatus();
 
