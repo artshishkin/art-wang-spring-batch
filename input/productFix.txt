@@ -1,0 +1,4 @@
+productID       productName             ProductDesc             price       unit
+               1Apple FIX                       apple cell phone  500.00       10
+2                               Dell FIX           dell computer    3000        5
+               3              office FIXms office software           196       23
