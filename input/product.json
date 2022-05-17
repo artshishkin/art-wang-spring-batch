@@ -1,0 +1,23 @@
+[
+  {
+    "productID": "1",
+    "productName": "Apple (JSON)",
+    "productDesc": "apple cell phone",
+    "price": "500.00",
+    "unit": "10"
+  },
+  {
+    "productID": "2",
+    "productName": "Dell (JSON)",
+    "productDesc": "dell computer",
+    "price": "3000",
+    "unit": "5"
+  },
+  {
+    "productID": "3",
+    "productName": "office (JSON)",
+    "productDesc": "ms office software",
+    "price": "196",
+    "unit": "23"
+  }
+]
