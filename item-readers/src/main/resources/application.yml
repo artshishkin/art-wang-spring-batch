@@ -1,6 +1,6 @@
 logging.level:
   net.shyshkin: debug
-
+app.external.product-service.url: http://localhost:8090
 ---
 spring:
   config:
