@@ -1,6 +1,6 @@
 package net.shyshkin.study.itemreaders;
 
-import net.shyshkin.study.itemreaders.config.BatchConfiguration;
+import net.shyshkin.study.itemreaders.config.AppConfiguration;
 import net.shyshkin.study.itemreaders.config.DatabaseConfig;
 import net.shyshkin.study.itemreaders.config.JdbcReadBatchConfiguration;
 import net.shyshkin.study.itemreaders.model.Product;
@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@ContextConfiguration(classes = {BatchConfiguration.class, JdbcReadBatchConfiguration.class, DatabaseConfig.class})
+@ContextConfiguration(classes = {AppConfiguration.class, JdbcReadBatchConfiguration.class, DatabaseConfig.class})
 class JdbcReaderJobTest extends AbstractJobTest {
 
     @Autowired

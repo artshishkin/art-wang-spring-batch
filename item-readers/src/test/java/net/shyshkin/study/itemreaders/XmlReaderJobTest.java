@@ -1,6 +1,6 @@
 package net.shyshkin.study.itemreaders;
 
-import net.shyshkin.study.itemreaders.config.BatchConfiguration;
+import net.shyshkin.study.itemreaders.config.AppConfiguration;
 import net.shyshkin.study.itemreaders.config.XmlReadBatchConfiguration;
 import net.shyshkin.study.itemreaders.model.Product;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@ContextConfiguration(classes = {BatchConfiguration.class, XmlReadBatchConfiguration.class})
+@ContextConfiguration(classes = {AppConfiguration.class, XmlReadBatchConfiguration.class})
 class XmlReaderJobTest extends AbstractJobTest {
 
     @Autowired

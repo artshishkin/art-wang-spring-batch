@@ -16,7 +16,7 @@ import java.time.Duration;
 @EnableBatchProcessing
 @Configuration
 @RequiredArgsConstructor
-public class BatchConfiguration {
+public class AppConfiguration {
 
     @Bean
     ConsoleItemWriter<Product> writer() {
