@@ -11,6 +11,7 @@
         <groupId>io.micronaut</groupId>
         <artifactId>micronaut-parent</artifactId>
         <version>3.4.4</version>
+        <relativePath/>
     </parent>
 
     <properties>
@@ -89,6 +90,11 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
