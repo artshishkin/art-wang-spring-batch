@@ -13,13 +13,13 @@ import java.util.LinkedList;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProductClientAdapter {
+public class ProductClientAdapter /*implements InitializingBean*/ {
 
     private final ProductClient productClient;
     private Deque<Product> products;
 
     @PostConstruct
-    void init() {
+    public void init() {
         products = new LinkedList<>();
         try {
             products.addAll(productClient.getAllProducts());
@@ -29,7 +29,13 @@ public class ProductClientAdapter {
     }
 
     public Product getProduct() {
-        return products.poll();
+        Product product = products.poll();
+        log.debug("Reading product: {}", product);
+        return product;
     }
 
+//    @Override
+//    public void afterPropertiesSet() throws Exception {
+//        init();
+//    }
 }

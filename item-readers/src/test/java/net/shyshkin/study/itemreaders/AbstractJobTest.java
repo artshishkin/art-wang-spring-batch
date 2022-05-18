@@ -15,7 +15,7 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(properties = {
         "spring.batch.job.enabled=false"
 })
-abstract class AbstractJobTest {
+public abstract class AbstractJobTest {
 
     @Autowired
     protected JobLauncherTestUtils jobLauncherTestUtils;
