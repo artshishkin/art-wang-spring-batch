@@ -1,5 +1,6 @@
 package net.shyshkin.study.batch.model;
 
+import io.micronaut.core.annotation.Introspected;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Introspected
 public class Product {
 
     private Long productID;

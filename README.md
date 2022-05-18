@@ -18,5 +18,20 @@ Tutorial - Master Spring Batch - from Michael Wang (Udemy)
   - exec program
     - `java -jar hello-world-0.0.1-SNAPSHOT.jar myCommandLineArgument="This is command line argument"`
 
+####  Section 3: Item Readers
+
+#####  36.3 Build Micronaut Docker Image
+
+1. Build Docker image
+   - `mvn package -Dpackaging=docker`
+   - `docker tag product-service artarkatesoft/art-wang-product-service`
+2. Build Native Docker Image (with GraalVM)
+   - `mvn package -Dpackaging=docker-native -Pgraalvm`
+   - `docker tag product-service artarkatesoft/art-wang-product-service:native`
+
+
+
+
+
 [springver]: https://img.shields.io/badge/dynamic/xml?label=Spring%20Boot&query=%2F%2A%5Blocal-name%28%29%3D%27project%27%5D%2F%2A%5Blocal-name%28%29%3D%27parent%27%5D%2F%2A%5Blocal-name%28%29%3D%27version%27%5D&url=https%3A%2F%2Fraw.githubusercontent.com%2Fartshishkin%2Fart-wang-spring-batch%2Fmaster%2Fpom.xml&logo=Spring&labelColor=white&color=grey
 [licence]: https://img.shields.io/github/license/artshishkin/art-wang-spring-batch.svg

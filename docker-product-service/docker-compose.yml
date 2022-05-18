@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  product-service:
+#    image: artarkatesoft/art-wang-product-service
+    image: artarkatesoft/art-wang-product-service:native
+    ports:
+      - '8090:8090'
