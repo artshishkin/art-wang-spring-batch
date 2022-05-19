@@ -1,8 +1,8 @@
-package itemwriters.config;
+package net.shyshkin.study.itemwriters.config;
 
-import itemwriters.model.Product;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.itemwriters.model.Product;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;

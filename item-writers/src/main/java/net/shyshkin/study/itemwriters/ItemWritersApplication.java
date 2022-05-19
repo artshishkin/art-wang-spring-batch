@@ -1,4 +1,4 @@
-package itemwriters;
+package net.shyshkin.study.itemwriters;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

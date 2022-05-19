@@ -1,8 +1,8 @@
-package itemwriters.config;
+package net.shyshkin.study.itemwriters.config;
 
-import itemwriters.model.Product;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.itemwriters.model.Product;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;

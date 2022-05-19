@@ -1,4 +1,4 @@
-package itemwriters.model;
+package net.shyshkin.study.itemwriters.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
