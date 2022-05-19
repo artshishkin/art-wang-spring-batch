@@ -35,13 +35,13 @@ public class CsvWriteBatchConfiguration {
     public Job csvWriteJob() {
         return jobs.get("csvWriteJob")
                 .incrementer(new RunIdIncrementer())
-                .start(readCsvStep())
+                .start(writeCsvStep())
                 .build();
     }
 
     @Bean
-    Step readCsvStep() {
-        return steps.get("readCsv")
+    Step writeCsvStep() {
+        return steps.get("writeCsv")
                 .<Product, Product>chunk(3)
                 .reader(itemReader)
                 .writer(flatFileItemWriter(null))
