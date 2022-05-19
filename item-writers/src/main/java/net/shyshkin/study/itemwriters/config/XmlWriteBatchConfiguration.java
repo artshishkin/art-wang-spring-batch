@@ -53,6 +53,7 @@ public class XmlWriteBatchConfiguration {
     StaxEventItemWriter<Product> xmlItemWriter(@Value("#{jobParameters['xmlOutputFile']}") FileSystemResource outputFile) {
         var marshaller = new XStreamMarshaller();
         marshaller.setAliases(Map.of("product", Product.class));
+        marshaller.setAutodetectAnnotations(true);
 
         return new StaxEventItemWriterBuilder<Product>()
                 .name("xmlProductWriter")
