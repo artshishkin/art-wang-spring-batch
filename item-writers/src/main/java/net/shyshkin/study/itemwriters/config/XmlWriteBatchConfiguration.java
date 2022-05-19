@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.oxm.xstream.XStreamMarshaller;
+
+import java.util.Map;
 
 @Slf4j
 @EnableBatchProcessing
@@ -49,8 +51,9 @@ public class XmlWriteBatchConfiguration {
     @Bean
     @StepScope
     StaxEventItemWriter<Product> xmlItemWriter(@Value("#{jobParameters['xmlOutputFile']}") FileSystemResource outputFile) {
-        Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        marshaller.setClassesToBeBound(Product.class);
+        var marshaller = new XStreamMarshaller();
+        marshaller.setAliases(Map.of("product", Product.class));
+
         return new StaxEventItemWriterBuilder<Product>()
                 .name("xmlProductWriter")
                 .resource(outputFile)
