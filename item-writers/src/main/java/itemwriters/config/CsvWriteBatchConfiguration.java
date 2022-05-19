@@ -18,6 +18,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Slf4j
 @EnableBatchProcessing
 @Configuration
@@ -54,6 +57,13 @@ public class CsvWriteBatchConfiguration {
                 .delimited()
                 .delimiter("|")
                 .names("productID", "productName", "price", "unit", "productDesc")
+                .append(false)
+                .headerCallback(writer -> writer.write("productID|productName|price|unit|productDesc"))
+                .footerCallback(writer -> writer.write(
+                                String.format("The file was created %s\n",
+                                        LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                        )
+                )
                 .build();
     }
 
