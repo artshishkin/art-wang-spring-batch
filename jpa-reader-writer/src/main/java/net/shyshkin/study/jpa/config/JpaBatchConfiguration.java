@@ -1,8 +1,8 @@
-package net.shyshkin.study.itemreaders.config;
+package net.shyshkin.study.jpa.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.shyshkin.study.itemreaders.model.Product;
+import net.shyshkin.study.jpa.model.Product;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -11,7 +11,6 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,9 +24,7 @@ public class JpaBatchConfiguration {
 
     private final JobBuilderFactory jobs;
     private final StepBuilderFactory steps;
-
-    @Autowired
-    private EntityManagerFactory factory;
+    private final EntityManagerFactory factory;
 
     @Bean
     public Job jpaJob() {
@@ -39,7 +36,7 @@ public class JpaBatchConfiguration {
 
     @Bean
     Step jpaStep() {
-        return steps.get("readCsv")
+        return steps.get("readJpa")
                 .<Product, Product>chunk(3)
                 .reader(reader())
                 .writer(items -> items.forEach(item -> log.debug("{}", item)))

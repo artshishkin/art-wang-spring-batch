@@ -1,4 +1,4 @@
-package net.shyshkin.study.itemreaders.model;
+package net.shyshkin.study.jpa.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "prod_id")
     private Integer productID;
     @Column(name = "prod_name")

@@ -1,4 +1,4 @@
-package net.shyshkin.study.itemreaders.init;
+package net.shyshkin.study.jpa.init;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
