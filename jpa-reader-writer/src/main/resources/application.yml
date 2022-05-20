@@ -1,6 +1,18 @@
 logging.level:
   net.shyshkin: debug
 app.external.product-service.url: http://localhost:8090
+
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  sql:
+    init:
+      mode: always
+      schema-locations: jdbc/products-schema.sql
+      data-locations: jdbc/products-data.sql
+
 ---
 spring:
   config:

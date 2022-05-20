@@ -7,14 +7,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.InputStreamReader;
 import java.util.stream.Stream;
 
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor
 @Profile("mysql")
 public class InitializeDatabase implements CommandLineRunner {
