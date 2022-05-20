@@ -1,0 +1,18 @@
+logging.level:
+  net.shyshkin: debug
+app.external.product-service.url: http://localhost:8090
+---
+spring:
+  config:
+    activate:
+      on-profile: mysql
+
+  datasource:
+    url: jdbc:mysql://localhost:23306/batch_db
+    username: batch_user
+    password: batch_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  batch:
+    jdbc:
+      platform: mysql
+      initialize-schema: embedded

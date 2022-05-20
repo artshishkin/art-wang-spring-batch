@@ -19,6 +19,7 @@
         <module>hello-world</module>
         <module>item-readers</module>
         <module>item-writers</module>
+        <module>jpa-reader-writer</module>
     </modules>
 
     <properties>
