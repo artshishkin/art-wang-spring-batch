@@ -9,7 +9,7 @@ spring:
       ddl-auto: none
   sql:
     init:
-      mode: always
+      mode: embedded
       schema-locations: jdbc/products-schema.sql
       data-locations: jdbc/products-data.sql
 
