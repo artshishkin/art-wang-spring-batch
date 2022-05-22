@@ -15,15 +15,19 @@ import java.nio.file.StandardOpenOption;
 
 @Slf4j
 @Component
-public class MyProductSkipListener extends SkipListenerSupport<Product,Product> {
+public class MyProductSkipListener extends SkipListenerSupport<Product, Product> {
 
-    @Value("${app.error.skip.file:output/resilience/error_skipped.txt}")
-    private Path errorFile;
+    @Value("${app.read.error.skip.file:output/resilience/read_error_skipped.txt}")
+    private Path readErrorSkipFile;
+
+    @Value("${app.proc.error.skip.file:output/resilience/proc_error_skipped.txt}")
+    private Path procErrorSkipFile;
 
     @PostConstruct
     void init() {
         try {
-            Files.createDirectories(errorFile.getParent());
+            Files.createDirectories(readErrorSkipFile.getParent());
+            Files.createDirectories(procErrorSkipFile.getParent());
         } catch (IOException e) {
             log.debug("Error: {}", e.getMessage());
         }
@@ -33,14 +37,20 @@ public class MyProductSkipListener extends SkipListenerSupport<Product,Product> 
     public void onSkipInRead(Throwable t) {
         if (t instanceof FlatFileParseException) {
             FlatFileParseException ex = (FlatFileParseException) t;
-            onSkip(ex.getInput());
+            onSkip(ex.getInput(), readErrorSkipFile);
         }
     }
 
-    private void onSkip(String input) {
+    @Override
+    public void onSkipInProcess(Product product, Throwable t) {
+        String message = String.format("With product %s the error occurred %s", product, t.getMessage());
+        onSkip(message, procErrorSkipFile);
+    }
+
+    private void onSkip(String input, Path errorSkipFile) {
 
         try {
-            Files.newBufferedWriter(errorFile, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+            Files.newBufferedWriter(errorSkipFile, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
                     .append(input)
                     .append("\r\n")
                     .flush();
@@ -48,7 +58,5 @@ public class MyProductSkipListener extends SkipListenerSupport<Product,Product> 
             log.debug("Error: {}", e.getMessage());
         }
     }
-
-
 
 }

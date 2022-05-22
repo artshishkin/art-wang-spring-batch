@@ -30,23 +30,29 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ContextConfiguration(classes = {AppConfiguration.class, SkipResilienceBatchConfiguration.class,
         ProductSkipListener.class, MyProductSkipListener.class, ProductProcessor.class})
-@TestPropertySource(properties = {"app.error.skip.file=../output/resilience/error_skipped_test.txt"})
+@TestPropertySource(properties = {
+        "app.read.error.skip.file=../output/resilience/read_error_skipped_test.txt",
+        "app.proc.error.skip.file=../output/resilience/proc_error_skipped_test.txt"
+})
 class SkipResilienceJobTest extends AbstractJobTest {
 
     private static final String TEST_OUTPUT = "../output/resilience/productOut.csv";
-    public static final String ERROR_SKIPPED_FILE = "../output/resilience/error_skipped_test.txt";
+    public static final String READ_ERROR_SKIPPED_FILE = "../output/resilience/read_error_skipped_test.txt";
+    public static final String PROC_ERROR_SKIPPED_FILE = "../output/resilience/proc_error_skipped_test.txt";
 
     @Autowired
     FlatFileItemWriter<Product> itemWriter;
 
     @BeforeEach
     void setUp() throws IOException {
-        Files.deleteIfExists(Path.of(ERROR_SKIPPED_FILE));
+        Files.deleteIfExists(Path.of(READ_ERROR_SKIPPED_FILE));
+        Files.deleteIfExists(Path.of(PROC_ERROR_SKIPPED_FILE));
     }
 
     @AfterEach
     void cleanFile() throws IOException {
-        Files.deleteIfExists(Path.of(ERROR_SKIPPED_FILE));
+        Files.deleteIfExists(Path.of(READ_ERROR_SKIPPED_FILE));
+        Files.deleteIfExists(Path.of(PROC_ERROR_SKIPPED_FILE));
     }
 
     private JobParameters defaultJobParameters() {
@@ -67,8 +73,8 @@ class SkipResilienceJobTest extends AbstractJobTest {
         //then
         assertThat(actualJobInstance.getJobName()).isEqualTo("skipJob");
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
-        AssertFile.assertLineCount(11, new FileSystemResource(TEST_OUTPUT));
-        checkErrorFile();
+        AssertFile.assertLineCount(10, new FileSystemResource(TEST_OUTPUT));
+        checkErrorFiles();
     }
 
     @Test
@@ -83,13 +89,14 @@ class SkipResilienceJobTest extends AbstractJobTest {
         assertThat(actualStepExecutions)
                 .hasSize(1)
                 .allSatisfy(execution -> assertAll(
-                        () -> assertThat(execution.getWriteCount()).isEqualTo(9),
+                        () -> assertThat(execution.getWriteCount()).isEqualTo(8),
                         () -> assertThat(execution.getReadCount()).isEqualTo(9),
-                        () -> assertThat(execution.getReadSkipCount()).isEqualTo(3)
+                        () -> assertThat(execution.getReadSkipCount()).isEqualTo(3),
+                        () -> assertThat(execution.getProcessSkipCount()).isEqualTo(1)
                 ));
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
-        AssertFile.assertLineCount(11, new FileSystemResource(TEST_OUTPUT));
-        checkErrorFile();
+        AssertFile.assertLineCount(10, new FileSystemResource(TEST_OUTPUT));
+        checkErrorFiles();
     }
 
     @Test
@@ -110,13 +117,27 @@ class SkipResilienceJobTest extends AbstractJobTest {
         AssertFile.assertLineCount(5, new FileSystemResource(TEST_OUTPUT));
     }
 
-    private void checkErrorFile() throws IOException {
-        Path errFile = Path.of(ERROR_SKIPPED_FILE);
+    private void checkErrorFiles() throws IOException {
+        checkReadErrorFile();
+    }
+
+    private void checkReadErrorFile() throws IOException {
+        Path errFile = Path.of(READ_ERROR_SKIPPED_FILE);
         assertThat(errFile).exists();
         assertThat(Files.readAllLines(errFile))
                 .hasSize(3)
                 .allSatisfy(content -> assertThat(content)
                         .endsWith("error")
+                );
+    }
+
+    private void checkProcErrorFile() throws IOException {
+        Path errFile = Path.of(PROC_ERROR_SKIPPED_FILE);
+        assertThat(errFile).exists();
+        assertThat(Files.readAllLines(errFile))
+                .hasSize(1)
+                .allSatisfy(content -> assertThat(content)
+                        .contains("Because fff")
                 );
     }
 
