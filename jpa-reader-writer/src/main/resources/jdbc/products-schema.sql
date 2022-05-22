@@ -35,7 +35,7 @@ create table if not exists reviews
     id         int          not null auto_increment,
     author     varchar(50)  not null,
     content    varchar(100) not null,
-    product_id int          not null,
+    product_id int          default null,
     primary key (id),
     foreign key (product_id) references products_jpa_out (id)
 );
