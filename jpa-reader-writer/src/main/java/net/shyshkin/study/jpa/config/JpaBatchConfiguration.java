@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.jpa.mapper.ProductMapper;
 import net.shyshkin.study.jpa.model.Category;
 import net.shyshkin.study.jpa.model.ProductOut;
-import net.shyshkin.study.jpa.writer.ProductJpaWriter;
+import net.shyshkin.study.jpa.writer.IterableItemWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -14,7 +14,9 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JpaCursorItemReader;
+import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,7 +33,6 @@ public class JpaBatchConfiguration {
     private final JobBuilderFactory jobs;
     private final StepBuilderFactory steps;
     private final EntityManagerFactory factory;
-    private final ProductJpaWriter productJpaWriter;
     private final ProductMapper mapper;
 
     @Bean
@@ -48,8 +49,7 @@ public class JpaBatchConfiguration {
                 .<Category, List<ProductOut>>chunk(3)
                 .reader(reader())
                 .processor(productProcessor())
-//                .writer(items -> items.forEach(item -> log.debug("{}", item)))
-                .writer(productJpaWriter)
+                .writer(productListItemWriter())
                 .build();
     }
 
@@ -70,5 +70,17 @@ public class JpaBatchConfiguration {
                 .build();
     }
 
+    @Bean
+    JpaItemWriter<ProductOut> jpaItemWriter() {
+        return new JpaItemWriterBuilder<ProductOut>()
+                .entityManagerFactory(factory)
+                .usePersist(false)
+                .build();
+    }
+
+    @Bean
+    IterableItemWriter<ProductOut> productListItemWriter() {
+        return new IterableItemWriter<>(jpaItemWriter());
+    }
 
 }
