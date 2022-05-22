@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter;
 @EnableBatchProcessing
 @Configuration
 @RequiredArgsConstructor
-public class ResilienceBatchConfiguration {
+public class SkipResilienceBatchConfiguration {
 
     private final JobBuilderFactory jobs;
     private final StepBuilderFactory steps;
@@ -33,7 +33,7 @@ public class ResilienceBatchConfiguration {
 
     @Bean
     public Job csvWriteJob() {
-        return jobs.get("csvWriteJob")
+        return jobs.get("skipJob")
                 .incrementer(new RunIdIncrementer())
                 .start(writeCsvStep())
                 .build();
@@ -41,7 +41,7 @@ public class ResilienceBatchConfiguration {
 
     @Bean
     Step writeCsvStep() {
-        return steps.get("writeCsv")
+        return steps.get("skipStep")
                 .<Product, Product>chunk(3)
                 .reader(itemReader)
                 .writer(flatFileItemWriter(null))

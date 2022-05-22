@@ -1,7 +1,7 @@
 package net.shyshkin.study.batch.resilience;
 
 import net.shyshkin.study.batch.resilience.config.AppConfiguration;
-import net.shyshkin.study.batch.resilience.config.ResilienceBatchConfiguration;
+import net.shyshkin.study.batch.resilience.config.SkipResilienceBatchConfiguration;
 import net.shyshkin.study.batch.resilience.model.Product;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.*;
@@ -18,8 +18,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ContextConfiguration(classes = {AppConfiguration.class, ResilienceBatchConfiguration.class})
-class ResilienceJobTest extends AbstractJobTest {
+@ContextConfiguration(classes = {AppConfiguration.class, SkipResilienceBatchConfiguration.class})
+class SkipResilienceJobTest extends AbstractJobTest {
 
     private static final String TEST_OUTPUT = "../output/resilience/productOut.csv";
 
@@ -34,7 +34,7 @@ class ResilienceJobTest extends AbstractJobTest {
     }
 
     @Test
-    void csvWriterJobTest() throws Exception {
+    void skipJobTest() throws Exception {
 
         //when
         JobExecution jobExecution = jobLauncherTestUtils.launchJob(defaultJobParameters());
@@ -42,16 +42,16 @@ class ResilienceJobTest extends AbstractJobTest {
         ExitStatus actualJobExitStatus = jobExecution.getExitStatus();
 
         //then
-        assertThat(actualJobInstance.getJobName()).isEqualTo("csvWriteJob");
+        assertThat(actualJobInstance.getJobName()).isEqualTo("skipJob");
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
         AssertFile.assertLineCount(5, new FileSystemResource(TEST_OUTPUT));
     }
 
     @Test
-    void csvWriterStepTest() throws Exception {
+    void skipStepTest() throws Exception {
 
         //when
-        JobExecution jobExecution = jobLauncherTestUtils.launchStep("writeCsv", defaultJobParameters());
+        JobExecution jobExecution = jobLauncherTestUtils.launchStep("skipStep", defaultJobParameters());
         var actualStepExecutions = jobExecution.getStepExecutions();
         ExitStatus actualJobExitStatus = jobExecution.getExitStatus();
 
@@ -64,7 +64,7 @@ class ResilienceJobTest extends AbstractJobTest {
     }
 
     @Test
-    void csvWriterStepScopeTest() throws Exception {
+    void skipStepScopeTest() throws Exception {
         //given
         StepExecution stepExecution = MetaDataInstanceFactory
                 .createStepExecution(defaultJobParameters());
