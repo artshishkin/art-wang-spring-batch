@@ -2,7 +2,7 @@ package net.shyshkin.study.batch.resilience.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.shyshkin.study.batch.resilience.listener.ProductSkipListener;
+import net.shyshkin.study.batch.resilience.listener.MyProductSkipListener;
 import net.shyshkin.study.batch.resilience.model.Product;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -32,7 +32,7 @@ public class SkipResilienceBatchConfiguration {
     private final JobBuilderFactory jobs;
     private final StepBuilderFactory steps;
     private final FlatFileItemReader<Product> itemReader;
-    private final ProductSkipListener productSkipListener;
+    private final MyProductSkipListener productSkipListener;
 
     @Bean
     public Job csvWriteJob() {
