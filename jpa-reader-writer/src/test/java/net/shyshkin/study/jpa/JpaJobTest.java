@@ -2,24 +2,29 @@ package net.shyshkin.study.jpa;
 
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.jpa.model.Category;
+import net.shyshkin.study.jpa.model.Review;
+import net.shyshkin.study.jpa.repository.ReviewRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.*;
 import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.test.MetaDataInstanceFactory;
 import org.springframework.batch.test.StepScopeTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @Slf4j
-//@SqlGroup({
-//        @Sql(scripts = {"classpath:jdbc/products-schema.sql", "classpath:jdbc/products-data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
-//        @Sql(statements = {"drop table products_jpa", "drop table categories"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-//})
+@SqlGroup({
+        @Sql(scripts = {"classpath:jdbc/products-schema.sql", "classpath:jdbc/products-data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+        @Sql(scripts = {"classpath:jdbc/drop-product-tables.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+})
 class JpaJobTest extends AbstractJobTest {
 
     @Autowired
@@ -27,6 +32,9 @@ class JpaJobTest extends AbstractJobTest {
 
     @Autowired
     DataSource dataSource;
+
+    @Autowired
+    ReviewRepository reviewRepository;
 
     private JobParameters defaultJobParameters() {
         JobParametersBuilder paramsBuilder = new JobParametersBuilder();
@@ -45,6 +53,9 @@ class JpaJobTest extends AbstractJobTest {
         assertThat(actualJobInstance.getJobName()).isEqualTo("jpaJob");
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
 
+        List<Review> reviews = reviewRepository.findAll();
+        assertThat(reviews).hasSize(9);
+
     }
 
     @Test
@@ -60,6 +71,9 @@ class JpaJobTest extends AbstractJobTest {
                 .hasSize(1)
                 .allSatisfy(execution -> assertThat(execution.getWriteCount()).isEqualTo(2));
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
+
+        List<Review> reviews = reviewRepository.findAll();
+        assertThat(reviews).hasSize(9);
 
     }
 
