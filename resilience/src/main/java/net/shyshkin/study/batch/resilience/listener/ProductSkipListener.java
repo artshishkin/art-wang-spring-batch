@@ -1,6 +1,8 @@
 package net.shyshkin.study.batch.resilience.listener;
 
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.batch.resilience.model.Product;
+import org.springframework.batch.core.annotation.OnSkipInProcess;
 import org.springframework.batch.core.annotation.OnSkipInRead;
 import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,32 +18,41 @@ import java.nio.file.StandardOpenOption;
 @Component
 public class ProductSkipListener {
 
-    @Value("${app.error.skip.file:output/resilience/error_skipped.txt}")
-    private Path errorFile;
+    @Value("${app.read.error.skip.file:output/resilience/read_error_skipped.txt}")
+    private Path readErrorSkipFile;
+
+    @Value("${app.proc.error.skip.file:output/resilience/proc_error_skipped.txt}")
+    private Path procErrorSkipFile;
 
     @PostConstruct
     void init() {
         try {
-            Files.createDirectories(errorFile.getParent());
+            Files.createDirectories(readErrorSkipFile.getParent());
+            Files.createDirectories(procErrorSkipFile.getParent());
         } catch (IOException e) {
             log.debug("Error: {}", e.getMessage());
         }
     }
 
     @OnSkipInRead
-    public void onSkipRead(Throwable t) {
+    public void onSkipInRead(Throwable t) {
 
         if (t instanceof FlatFileParseException) {
             FlatFileParseException ex = (FlatFileParseException) t;
-            onSkip(ex.getInput());
+            onSkip(ex.getInput(), readErrorSkipFile);
         }
     }
 
-    private void onSkip(Object o) {
+    @OnSkipInProcess
+    public void onSkipInProcess(Product product, Throwable t) {
+        String message = String.format("With product %s the error occurred %s", product, t.getMessage());
+        onSkip(message, procErrorSkipFile);
+    }
+
+    private void onSkip(Object o, Path errorSkipFile) {
 
         try {
-//            Files.writeString(errorFile, o.toString(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-            Files.newBufferedWriter(errorFile, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+            Files.newBufferedWriter(errorSkipFile, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
                     .append(o.toString())
                     .append("\r\n")
                     .flush();
