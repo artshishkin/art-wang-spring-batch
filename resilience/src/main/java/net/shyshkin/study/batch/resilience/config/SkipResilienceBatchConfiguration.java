@@ -12,6 +12,7 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -45,6 +46,9 @@ public class SkipResilienceBatchConfiguration {
                 .<Product, Product>chunk(3)
                 .reader(itemReader)
                 .writer(flatFileItemWriter(null))
+                .faultTolerant()
+                .skip(FlatFileParseException.class)
+                .skipLimit(5)
                 .build();
     }
 

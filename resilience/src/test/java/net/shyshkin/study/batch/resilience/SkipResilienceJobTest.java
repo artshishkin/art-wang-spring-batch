@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ContextConfiguration(classes = {AppConfiguration.class, SkipResilienceBatchConfiguration.class})
 class SkipResilienceJobTest extends AbstractJobTest {
@@ -44,7 +45,7 @@ class SkipResilienceJobTest extends AbstractJobTest {
         //then
         assertThat(actualJobInstance.getJobName()).isEqualTo("skipJob");
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
-        AssertFile.assertLineCount(14, new FileSystemResource(TEST_OUTPUT));
+        AssertFile.assertLineCount(11, new FileSystemResource(TEST_OUTPUT));
     }
 
     @Test
@@ -58,9 +59,13 @@ class SkipResilienceJobTest extends AbstractJobTest {
         //then
         assertThat(actualStepExecutions)
                 .hasSize(1)
-                .allSatisfy(execution -> assertThat(execution.getWriteCount()).isEqualTo(3));
+                .allSatisfy(execution -> assertAll(
+                        () -> assertThat(execution.getWriteCount()).isEqualTo(9),
+                        () -> assertThat(execution.getReadCount()).isEqualTo(9),
+                        () -> assertThat(execution.getReadSkipCount()).isEqualTo(3)
+                ));
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
-        AssertFile.assertLineCount(14, new FileSystemResource(TEST_OUTPUT));
+        AssertFile.assertLineCount(11, new FileSystemResource(TEST_OUTPUT));
     }
 
     @Test
