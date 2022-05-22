@@ -28,7 +28,7 @@ class SkipResilienceJobTest extends AbstractJobTest {
 
     private JobParameters defaultJobParameters() {
         JobParametersBuilder paramsBuilder = new JobParametersBuilder();
-        paramsBuilder.addString("csvInputFile", "../input/resilience/product.csv");
+        paramsBuilder.addString("csvInputFile", "../input/resilience/product-skip.csv");
         paramsBuilder.addString("csvOutputFile", TEST_OUTPUT);
         return paramsBuilder.toJobParameters();
     }
@@ -44,7 +44,7 @@ class SkipResilienceJobTest extends AbstractJobTest {
         //then
         assertThat(actualJobInstance.getJobName()).isEqualTo("skipJob");
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
-        AssertFile.assertLineCount(5, new FileSystemResource(TEST_OUTPUT));
+        AssertFile.assertLineCount(14, new FileSystemResource(TEST_OUTPUT));
     }
 
     @Test
@@ -60,7 +60,7 @@ class SkipResilienceJobTest extends AbstractJobTest {
                 .hasSize(1)
                 .allSatisfy(execution -> assertThat(execution.getWriteCount()).isEqualTo(3));
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
-        AssertFile.assertLineCount(5, new FileSystemResource(TEST_OUTPUT));
+        AssertFile.assertLineCount(14, new FileSystemResource(TEST_OUTPUT));
     }
 
     @Test
