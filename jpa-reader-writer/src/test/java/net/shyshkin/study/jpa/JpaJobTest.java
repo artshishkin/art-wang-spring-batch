@@ -69,7 +69,7 @@ class JpaJobTest extends AbstractJobTest {
         //then
         assertThat(actualStepExecutions)
                 .hasSize(1)
-                .allSatisfy(execution -> assertThat(execution.getWriteCount()).isEqualTo(2));
+                .allSatisfy(execution -> assertThat(execution.getWriteCount()).isEqualTo(3));
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
 
         List<Review> reviews = reviewRepository.findAll();
@@ -94,15 +94,19 @@ class JpaJobTest extends AbstractJobTest {
                 Category category = categoryRead;
                 assertAll(
                         () -> assertThat(category).hasNoNullFieldsOrProperties(),
-                        () -> assertThat(category.getProducts())
-                                .isNotNull()
-                                .isNotEmpty()
-                                .allSatisfy(product -> assertAll(
-                                        () -> assertThat(product.getProductID()).isGreaterThan(0),
-                                        () -> assertThat(product.getPrice()).isGreaterThan(new BigDecimal("0.0")),
-                                        () -> assertThat(product.getProductName()).isNotEmpty(),
-                                        () -> assertThat(product.getProductDesc()).isNotEmpty()
-                                )),
+                        () -> {
+                            if (!"Else".equals(category.getName())) {
+                                assertThat(category.getProducts())
+                                        .isNotNull()
+                                        .isNotEmpty()
+                                        .allSatisfy(product -> assertAll(
+                                                () -> assertThat(product.getProductID()).isGreaterThan(0),
+                                                () -> assertThat(product.getPrice()).isGreaterThan(new BigDecimal("0.0")),
+                                                () -> assertThat(product.getProductName()).isNotEmpty(),
+                                                () -> assertThat(product.getProductDesc()).isNotEmpty()
+                                        ));
+                            }
+                        },
                         () -> log.debug("{}", category)
                 );
                 readSomeThing = true;

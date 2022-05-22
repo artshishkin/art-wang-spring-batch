@@ -2,6 +2,8 @@ insert into categories (name, description)
 values ('Hardware', 'All hardware');
 insert into categories (name, description)
 values ('Software', 'All software');
+insert into categories (name, description)
+values ('Else', 'Other');
 
 insert into products_jpa (prod_name, prod_desc, price, unit, category_id)
 values ('Apple JPA', 'apple cell phone', 500.00, 10, 1);
