@@ -2,7 +2,7 @@ package net.shyshkin.study.jpa.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.shyshkin.study.jpa.model.Product;
+import net.shyshkin.study.jpa.model.Category;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -37,17 +37,17 @@ public class JpaBatchConfiguration {
     @Bean
     Step jpaStep() {
         return steps.get("readJpa")
-                .<Product, Product>chunk(3)
+                .<Category, Category>chunk(3)
                 .reader(reader())
                 .writer(items -> items.forEach(item -> log.debug("{}", item)))
                 .build();
     }
 
     @Bean
-    JpaCursorItemReader<Product> reader() {
-        return new JpaCursorItemReaderBuilder<Product>()
+    JpaCursorItemReader<Category> reader() {
+        return new JpaCursorItemReaderBuilder<Category>()
                 .name("jpaReader")
-                .queryString("select p from Product p")
+                .queryString("select c from Category c")
                 .entityManagerFactory(factory)
                 .build();
     }
