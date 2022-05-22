@@ -2,7 +2,10 @@ package net.shyshkin.study.batch.resilience;
 
 import net.shyshkin.study.batch.resilience.config.AppConfiguration;
 import net.shyshkin.study.batch.resilience.config.SkipResilienceBatchConfiguration;
+import net.shyshkin.study.batch.resilience.listener.ProductSkipListener;
 import net.shyshkin.study.batch.resilience.model.Product;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.*;
 import org.springframework.batch.item.file.FlatFileItemWriter;
@@ -12,20 +15,36 @@ import org.springframework.batch.test.StepScopeTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@ContextConfiguration(classes = {AppConfiguration.class, SkipResilienceBatchConfiguration.class})
+@ContextConfiguration(classes = {AppConfiguration.class, SkipResilienceBatchConfiguration.class, ProductSkipListener.class})
+@TestPropertySource(properties = {"app.error.skip.file=../output/resilience/error_skipped_test.txt"})
 class SkipResilienceJobTest extends AbstractJobTest {
 
     private static final String TEST_OUTPUT = "../output/resilience/productOut.csv";
+    public static final String ERROR_SKIPPED_FILE = "../output/resilience/error_skipped_test.txt";
 
     @Autowired
     FlatFileItemWriter<Product> itemWriter;
+
+    @BeforeEach
+    void setUp() throws IOException {
+        Files.deleteIfExists(Path.of(ERROR_SKIPPED_FILE));
+    }
+
+    @AfterEach
+    void cleanFile() throws IOException {
+        Files.deleteIfExists(Path.of(ERROR_SKIPPED_FILE));
+    }
 
     private JobParameters defaultJobParameters() {
         JobParametersBuilder paramsBuilder = new JobParametersBuilder();
@@ -46,6 +65,7 @@ class SkipResilienceJobTest extends AbstractJobTest {
         assertThat(actualJobInstance.getJobName()).isEqualTo("skipJob");
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
         AssertFile.assertLineCount(11, new FileSystemResource(TEST_OUTPUT));
+        checkErrorFile();
     }
 
     @Test
@@ -66,6 +86,7 @@ class SkipResilienceJobTest extends AbstractJobTest {
                 ));
         assertThat(actualJobExitStatus.getExitCode()).isEqualTo("COMPLETED");
         AssertFile.assertLineCount(11, new FileSystemResource(TEST_OUTPUT));
+        checkErrorFile();
     }
 
     @Test
@@ -84,6 +105,16 @@ class SkipResilienceJobTest extends AbstractJobTest {
 
         //then
         AssertFile.assertLineCount(5, new FileSystemResource(TEST_OUTPUT));
+    }
+
+    private void checkErrorFile() throws IOException {
+        Path errFile = Path.of(ERROR_SKIPPED_FILE);
+        assertThat(errFile).exists();
+        assertThat(Files.readAllLines(errFile))
+                .hasSize(3)
+                .allSatisfy(content -> assertThat(content)
+                        .endsWith("error")
+                );
     }
 
     private List<Product> mockProducts() {

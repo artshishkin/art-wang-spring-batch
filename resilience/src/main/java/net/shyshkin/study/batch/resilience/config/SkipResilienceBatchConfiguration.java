@@ -2,6 +2,7 @@ package net.shyshkin.study.batch.resilience.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.batch.resilience.listener.ProductSkipListener;
 import net.shyshkin.study.batch.resilience.model.Product;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -13,7 +14,6 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
-import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +32,7 @@ public class SkipResilienceBatchConfiguration {
     private final JobBuilderFactory jobs;
     private final StepBuilderFactory steps;
     private final FlatFileItemReader<Product> itemReader;
+    private final ProductSkipListener productSkipListener;
 
     @Bean
     public Job csvWriteJob() {
@@ -48,9 +49,10 @@ public class SkipResilienceBatchConfiguration {
                 .reader(itemReader)
                 .writer(flatFileItemWriter(null))
                 .faultTolerant()
-                .skip(FlatFileParseException.class)
+//                .skip(FlatFileParseException.class)
 //                .skipLimit(5)
                 .skipPolicy(new AlwaysSkipItemSkipPolicy())
+                .listener(productSkipListener)
                 .build();
     }
 
