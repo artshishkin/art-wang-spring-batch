@@ -5,6 +5,7 @@ import net.shyshkin.study.batch.resilience.config.SkipResilienceBatchConfigurati
 import net.shyshkin.study.batch.resilience.listener.MyProductSkipListener;
 import net.shyshkin.study.batch.resilience.listener.ProductSkipListener;
 import net.shyshkin.study.batch.resilience.model.Product;
+import net.shyshkin.study.batch.resilience.processor.ProductProcessor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@ContextConfiguration(classes = {AppConfiguration.class, SkipResilienceBatchConfiguration.class, ProductSkipListener.class, MyProductSkipListener.class})
+@ContextConfiguration(classes = {AppConfiguration.class, SkipResilienceBatchConfiguration.class,
+        ProductSkipListener.class, MyProductSkipListener.class, ProductProcessor.class})
 @TestPropertySource(properties = {"app.error.skip.file=../output/resilience/error_skipped_test.txt"})
 class SkipResilienceJobTest extends AbstractJobTest {
 

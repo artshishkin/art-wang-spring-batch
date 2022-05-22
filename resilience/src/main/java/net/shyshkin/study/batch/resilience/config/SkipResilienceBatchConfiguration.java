@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.batch.resilience.listener.MyProductSkipListener;
 import net.shyshkin.study.batch.resilience.model.Product;
+import net.shyshkin.study.batch.resilience.processor.ProductProcessor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -11,9 +12,9 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +34,7 @@ public class SkipResilienceBatchConfiguration {
     private final StepBuilderFactory steps;
     private final FlatFileItemReader<Product> itemReader;
     private final MyProductSkipListener productSkipListener;
+    private final ProductProcessor productProcessor;
 
     @Bean
     public Job csvWriteJob() {
@@ -47,11 +49,12 @@ public class SkipResilienceBatchConfiguration {
         return steps.get("skipStep")
                 .<Product, Product>chunk(3)
                 .reader(itemReader)
+                .processor(productProcessor)
                 .writer(flatFileItemWriter(null))
                 .faultTolerant()
-//                .skip(FlatFileParseException.class)
-//                .skipLimit(5)
-                .skipPolicy(new AlwaysSkipItemSkipPolicy())
+                .skip(FlatFileParseException.class)
+                .skipLimit(10)
+//                .skipPolicy(new AlwaysSkipItemSkipPolicy())
                 .listener(productSkipListener)
                 .build();
     }
