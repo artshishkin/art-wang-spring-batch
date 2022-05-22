@@ -6,6 +6,7 @@ import net.shyshkin.study.jpa.model.Category;
 import net.shyshkin.study.jpa.model.Product;
 import net.shyshkin.study.jpa.model.ProductOut;
 import net.shyshkin.study.jpa.model.Review;
+import net.shyshkin.study.jpa.writer.ProductJpaWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -32,6 +33,7 @@ public class JpaBatchConfiguration {
     private final JobBuilderFactory jobs;
     private final StepBuilderFactory steps;
     private final EntityManagerFactory factory;
+    private final ProductJpaWriter productJpaWriter;
 
     @Bean
     public Job jpaJob() {
@@ -47,7 +49,8 @@ public class JpaBatchConfiguration {
                 .<Category, List<ProductOut>>chunk(3)
                 .reader(reader())
                 .processor(productProcessor())
-                .writer(items -> items.forEach(item -> log.debug("{}", item)))
+//                .writer(items -> items.forEach(item -> log.debug("{}", item)))
+                .writer(productJpaWriter)
                 .build();
     }
 
