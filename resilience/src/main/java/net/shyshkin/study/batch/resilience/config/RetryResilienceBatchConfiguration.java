@@ -14,17 +14,23 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.NonTransientResourceException;
+import org.springframework.batch.item.ParseException;
+import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.annotation.Retryable;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Slf4j
+@EnableRetry
 @EnableBatchProcessing
 @Configuration
 @RequiredArgsConstructor
@@ -49,15 +55,21 @@ public class RetryResilienceBatchConfiguration {
                 .reader(serviceItemReader())
                 .writer(retryCsvItemWriter(null))
                 .faultTolerant()
-                .retryLimit(5)
-                .retry(Service500Exception.class)
-                .retry(ProductServiceException.class)
+//                .retryLimit(5)
+//                .retry(Service500Exception.class)
+//                .retry(ProductServiceException.class)
                 .build();
     }
 
     @Bean
     ItemReader<? extends Product> serviceItemReader() {
-        return (ItemReader<Product>) productService::getProduct;
+        return new ItemReader<Product>() {
+            @Override
+            @Retryable(include = {Service500Exception.class, ProductServiceException.class}, maxAttempts = 5)
+            public Product read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+                return productService.getProduct();
+            }
+        };
     }
 
     @Bean
