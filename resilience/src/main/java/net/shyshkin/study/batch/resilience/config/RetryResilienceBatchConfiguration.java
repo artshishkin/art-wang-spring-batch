@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.retry.annotation.Retryable;
 
@@ -54,7 +55,7 @@ public class RetryResilienceBatchConfiguration {
                 .<Product, Product>chunk(3)
                 .reader(serviceItemReader())
                 .writer(retryCsvItemWriter(null))
-                .faultTolerant()
+//                .faultTolerant()
 //                .retryLimit(5)
 //                .retry(Service500Exception.class)
 //                .retry(ProductServiceException.class)
@@ -65,7 +66,11 @@ public class RetryResilienceBatchConfiguration {
     ItemReader<? extends Product> serviceItemReader() {
         return new ItemReader<Product>() {
             @Override
-            @Retryable(include = {Service500Exception.class, ProductServiceException.class}, maxAttempts = 5)
+            @Retryable(
+                    include = {Service500Exception.class, ProductServiceException.class},
+                    maxAttempts = 500,
+                    backoff = @Backoff(value = 100L, multiplier = 2, maxDelay = 500)
+            )
             public Product read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
                 return productService.getProduct();
             }

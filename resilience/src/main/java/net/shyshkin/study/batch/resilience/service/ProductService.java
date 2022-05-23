@@ -19,7 +19,6 @@ public class ProductService {
 
         Product product = null;
         log.debug("Getting Product from external service...");
-        Thread.sleep(1000);
         try {
             product = productClient.getProduct(1L);
             log.debug("Reading product: {}", product);
