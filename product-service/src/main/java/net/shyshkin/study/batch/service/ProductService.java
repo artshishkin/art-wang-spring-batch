@@ -1,10 +1,12 @@
 package net.shyshkin.study.batch.service;
 
 import jakarta.inject.Singleton;
+import net.shyshkin.study.batch.exception.EntityNotFoundException;
 import net.shyshkin.study.batch.model.Product;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Singleton
 public class ProductService {
@@ -35,6 +37,14 @@ public class ProductService {
 
     public List<Product> getAllProducts() {
         return products;
+    }
+
+    public Product getProduct(Long id) {
+        return this.products
+                .stream()
+                .filter(pr -> Objects.equals(pr.getProductID(), id))
+                .findAny()
+                .orElseThrow(EntityNotFoundException::new);
     }
 
 }

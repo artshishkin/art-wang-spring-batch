@@ -5,16 +5,20 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.batch.model.Product;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
@@ -110,4 +114,61 @@ class ProductControllerTest {
                 .containsExactlyInAnyOrder(expectedProductNames);
 
     }
+
+    @Test
+    void getProduct_whenProductAbsent_shouldReturnNotFound() {
+        //given
+        long absentId = 1000L;
+        var expectedStatus = HttpStatus.NOT_FOUND;
+
+        //when
+        ThrowableAssert.ThrowingCallable execution = () -> {
+            var response = client.toBlocking().exchange("/" + absentId, JsonNode.class);
+        };
+
+        //then
+        assertThatThrownBy(execution)
+                .isInstanceOf(HttpClientResponseException.class)
+                .hasMessage("Not Found")
+                .extracting(t -> (HttpClientResponseException) t)
+                .satisfies(ex -> assertAll(
+                                () -> assertThat((CharSequence) ex.getStatus()).isEqualTo(expectedStatus),
+                                () -> assertThat(ex.getResponse().body()).isNull()
+                        )
+                );
+    }
+
+    @Test
+    void getProduct_shouldReturnServerError3of4times() {
+        //given
+        long id = 1L;
+
+        //when
+        for (int i = 0; i < 3; i++) {
+
+            //when
+            ThrowableAssert.ThrowingCallable execution = () -> {
+                var response = client.toBlocking().exchange("/" + id, JsonNode.class);
+            };
+
+            //then
+            assertThatThrownBy(execution)
+                    .isInstanceOf(HttpClientResponseException.class)
+                    .hasMessage("Internal Server Error")
+                    .extracting(t -> (HttpClientResponseException) t)
+                    .satisfies(ex -> assertAll(
+                                    () -> assertThat((CharSequence) ex.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR),
+                                    () -> assertThat(ex.getResponse().body()).isNull()
+                            )
+                    );
+        }
+        var response = client.toBlocking().exchange("/" + id, Product.class);
+        //then
+        assertThat((CharSequence) response.status()).isEqualTo(HttpStatus.OK);
+        assertThat(response.body())
+                .hasNoNullFieldsOrProperties();
+        MediaType mediaType = response.getContentType().orElseThrow();
+        assertEquals(MediaType.APPLICATION_JSON, mediaType.getName());
+    }
+
 }
