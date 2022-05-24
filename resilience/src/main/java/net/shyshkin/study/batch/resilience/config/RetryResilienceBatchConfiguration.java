@@ -68,7 +68,7 @@ public class RetryResilienceBatchConfiguration {
             @Override
             @Retryable(
                     include = {Service500Exception.class, ProductServiceException.class},
-                    maxAttempts = 500,
+                    maxAttempts = 5,
                     backoff = @Backoff(value = 100L, multiplier = 2, maxDelay = 500)
             )
             public Product read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
