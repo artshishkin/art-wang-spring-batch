@@ -2,6 +2,7 @@ package net.shyshkin.study.batch.resilience.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.batch.resilience.exception.Service500Exception;
 import net.shyshkin.study.batch.resilience.model.Product;
 import net.shyshkin.study.batch.resilience.model.ProductCut;
 import net.shyshkin.study.batch.resilience.service.ProductClient;
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
+import java.net.ConnectException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -50,6 +52,10 @@ public class ProcRetryResilienceBatchConfiguration {
                 .reader(procProductCutReader(null))
                 .writer(procRetryCsvItemWriter(null))
                 .processor(processor())
+                .faultTolerant()
+                .retryLimit(5)
+                .retry(Service500Exception.class)
+                .retry(ConnectException.class)
                 .build();
     }
 
