@@ -16,6 +16,7 @@ import org.springframework.batch.test.MetaDataInstanceFactory;
 import org.springframework.batch.test.StepScopeTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
         "app.read.error.skip.file=../output/resilience/read_error_skipped_test.txt",
         "app.proc.error.skip.file=../output/resilience/proc_error_skipped_test.txt"
 })
+@ActiveProfiles("skip")
 class SkipResilienceJobTest extends AbstractJobTest {
 
     private static final String TEST_OUTPUT = "../output/resilience/productOut.csv";

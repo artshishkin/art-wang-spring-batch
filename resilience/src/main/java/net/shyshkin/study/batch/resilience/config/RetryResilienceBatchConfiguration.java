@@ -22,6 +22,7 @@ import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.EnableRetry;
@@ -35,6 +36,7 @@ import java.time.format.DateTimeFormatter;
 @EnableBatchProcessing
 @Configuration
 @RequiredArgsConstructor
+@Profile("retry-in-reader")
 public class RetryResilienceBatchConfiguration {
 
     private final JobBuilderFactory jobs;

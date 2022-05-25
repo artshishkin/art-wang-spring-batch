@@ -14,6 +14,7 @@ import org.springframework.batch.test.AssertFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.math.BigDecimal;
@@ -25,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ContextConfiguration(classes = {AppConfiguration.class, RetryResilienceBatchConfiguration.class, ProductService.class})
+@ActiveProfiles("retry-in-reader")
 class RetryInReaderResilienceJobTest extends AbstractJobTest {
 
     private static final String TEST_OUTPUT = "../output/resilience/retryProductOut.csv";
