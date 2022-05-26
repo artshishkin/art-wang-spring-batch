@@ -29,18 +29,19 @@ class RestartResilienceJobTest extends AbstractJobTest {
 
     private static final String TEST_OUTPUT = "../output/resilience/product-restart-test-output.csv";
     public static final String ORIGINAL_TEST_INPUT = "../input/resilience/product-restart.csv";
-    public static final String TEST_INPUT = "../output/resilience/product-restart-test-input.csv";
+    public static final String TEST_INPUT = "../input/resilience/product-restart-test-input.csv";
 
     @BeforeEach
     void setUp() throws IOException {
+        Files.createDirectories(Path.of(TEST_OUTPUT).getParent());
         Files.deleteIfExists(Path.of(TEST_OUTPUT));
         Files.copy(Path.of(ORIGINAL_TEST_INPUT), Path.of(TEST_INPUT), StandardCopyOption.REPLACE_EXISTING);
     }
 
     @AfterEach
     void cleanFiles() throws IOException {
-//        Files.deleteIfExists(Path.of(TEST_INPUT));
-//        Files.deleteIfExists(Path.of(TEST_OUTPUT));
+        Files.deleteIfExists(Path.of(TEST_INPUT));
+        Files.deleteIfExists(Path.of(TEST_OUTPUT));
     }
 
     private JobParameters defaultJobParameters() {
