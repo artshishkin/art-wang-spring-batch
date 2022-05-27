@@ -1,6 +1,6 @@
 logging.level:
   net.shyshkin: debug
-
+app.processor.pause: 300
 ---
 spring:
   config:

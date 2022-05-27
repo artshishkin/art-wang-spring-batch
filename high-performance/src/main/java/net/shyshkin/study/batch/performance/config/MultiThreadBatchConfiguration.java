@@ -39,6 +39,9 @@ public class MultiThreadBatchConfiguration {
     private final FlatFileItemReader<Product> itemReader;
     private final DataSource dataSource;
 
+    @Value("${app.processor.pause}")
+    private Long fakeProcessorPause;
+
     @Bean
     public Job multiThreadJob() {
         return jobs.get("multi-thread-job")
@@ -68,7 +71,7 @@ public class MultiThreadBatchConfiguration {
     ItemProcessor<Product, Product> productProcessor() {
         return product -> {
             log.debug("Processing {}", product);
-            Thread.sleep(300);
+            Thread.sleep(fakeProcessorPause);
             return product;
         };
     }
