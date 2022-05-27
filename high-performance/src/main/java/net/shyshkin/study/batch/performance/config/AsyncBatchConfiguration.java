@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -64,12 +64,12 @@ public class AsyncBatchConfiguration {
     AsyncItemProcessor<Product, Product> asyncProductProcessor() {
         AsyncItemProcessor<Product, Product> processor = new AsyncItemProcessor<Product, Product>();
         processor.setDelegate(productProcessor());
-        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(4);
-        taskExecutor.setCorePoolSize(4);
-        taskExecutor.afterPropertiesSet();
-        processor.setTaskExecutor(taskExecutor);
-//        processor.setTaskExecutor(new SimpleAsyncTaskExecutor("product-thread"));
+//        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+//        taskExecutor.setMaxPoolSize(4);
+//        taskExecutor.setCorePoolSize(4);
+//        taskExecutor.afterPropertiesSet();
+//        processor.setTaskExecutor(taskExecutor);
+        processor.setTaskExecutor(new SimpleAsyncTaskExecutor("product-thread"));
         return processor;
     }
 
