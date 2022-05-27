@@ -11,6 +11,8 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
@@ -21,6 +23,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import javax.sql.DataSource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -34,6 +37,7 @@ public class MultiThreadBatchConfiguration {
     private final JobBuilderFactory jobs;
     private final StepBuilderFactory steps;
     private final FlatFileItemReader<Product> itemReader;
+    private final DataSource dataSource;
 
     @Bean
     public Job multiThreadJob() {
@@ -55,7 +59,7 @@ public class MultiThreadBatchConfiguration {
                 .<Product, Product>chunk(5)
                 .reader(itemReader)
                 .processor(productProcessor())
-                .writer(flatFileItemWriter(null))
+                .writer(jdbcItemWriter())
                 .taskExecutor(taskExecutor)
                 .build();
     }
@@ -85,6 +89,17 @@ public class MultiThreadBatchConfiguration {
                                         LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
                         )
                 )
+                .build();
+    }
+
+    @Bean
+    @StepScope
+    JdbcBatchItemWriter<Product> jdbcItemWriter() {
+
+        return new JdbcBatchItemWriterBuilder<Product>()
+                .dataSource(dataSource)
+                .beanMapped()
+                .sql("insert into products (prod_id, prod_name, prod_desc, price, unit) VALUES (:productID,:productName,:productDesc,:price,:unit)")
                 .build();
     }
 
