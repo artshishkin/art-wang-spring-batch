@@ -10,6 +10,8 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.integration.async.AsyncItemProcessor;
+import org.springframework.batch.integration.async.AsyncItemWriter;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
@@ -19,9 +21,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.Future;
 
 @Slf4j
 @EnableBatchProcessing
@@ -49,11 +53,19 @@ public class AsyncBatchConfiguration {
     Step step1() {
 
         return steps.get("step1")
-                .<Product, Product>chunk(5)
+                .<Product, Future<Product>>chunk(5)
                 .reader(itemReader)
-                .processor(productProcessor())
-                .writer(flatFileItemWriter(null))
+                .processor(asyncProductProcessor())
+                .writer(asyncItemWriter())
                 .build();
+    }
+
+    @Bean
+    AsyncItemProcessor<Product, Product> asyncProductProcessor() {
+        AsyncItemProcessor<Product, Product> processor = new AsyncItemProcessor<Product, Product>();
+        processor.setDelegate(productProcessor());
+        processor.setTaskExecutor(new SimpleAsyncTaskExecutor("product-thread"));
+        return processor;
     }
 
     @Bean
@@ -63,6 +75,13 @@ public class AsyncBatchConfiguration {
             Thread.sleep(fakeProcessorPause);
             return product;
         };
+    }
+
+    @Bean
+    AsyncItemWriter<Product> asyncItemWriter() {
+        AsyncItemWriter<Product> asyncItemWriter = new AsyncItemWriter<>();
+        asyncItemWriter.setDelegate(flatFileItemWriter(null));
+        return asyncItemWriter;
     }
 
     @Bean
