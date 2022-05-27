@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,11 +45,18 @@ public class MultiThreadBatchConfiguration {
 
     @Bean
     Step step1() {
+
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setCorePoolSize(4);
+        taskExecutor.setMaxPoolSize(4);
+        taskExecutor.afterPropertiesSet();
+
         return steps.get("step1")
                 .<Product, Product>chunk(5)
                 .reader(itemReader)
                 .processor(productProcessor())
                 .writer(flatFileItemWriter(null))
+                .taskExecutor(taskExecutor)
                 .build();
     }
 
