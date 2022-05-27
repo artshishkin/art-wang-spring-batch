@@ -11,7 +11,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class HighPerformanceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(HighPerformanceApplication.class, args);
+        System.exit(
+                SpringApplication.exit(
+                        SpringApplication.run(HighPerformanceApplication.class, args)
+                )
+        );
     }
 
 }
