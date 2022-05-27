@@ -21,6 +21,7 @@
         <module>item-writers</module>
         <module>jpa-reader-writer</module>
         <module>resilience</module>
+        <module>high-performance</module>
     </modules>
 
     <properties>
