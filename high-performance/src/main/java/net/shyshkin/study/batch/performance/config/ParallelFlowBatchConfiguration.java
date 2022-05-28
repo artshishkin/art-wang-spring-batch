@@ -8,10 +8,14 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 @Slf4j
 @EnableBatchProcessing
@@ -40,11 +44,35 @@ public class ParallelFlowBatchConfiguration {
     public Job parallelFlowJob() {
         return jobs.get("parallel-flow-job")
                 .incrementer(new RunIdIncrementer())
+                .start(splitFlow())
+                .next(cleanUpStep())
+                .end()
+                .build();
+    }
+
+    private Flow splitFlow() {
+        return new FlowBuilder<SimpleFlow>("split-flow")
+                .split(new SimpleAsyncTaskExecutor("split"))
+                .add(fileFlow(), biz3Flow(), biz4Flow())
+                .build();
+    }
+
+    private Flow fileFlow() {
+        return new FlowBuilder<SimpleFlow>("file-flow")
                 .start(downloadStep())
                 .next(fileProcessStep())
-                .next(biz3Step())
-                .next(biz4Step())
-                .next(cleanUpStep())
+                .build();
+    }
+
+    private Flow biz3Flow() {
+        return new FlowBuilder<SimpleFlow>("business-3-flow")
+                .start(biz3Step())
+                .build();
+    }
+
+    private Flow biz4Flow() {
+        return new FlowBuilder<SimpleFlow>("business-4-flow")
+                .start(biz4Step())
                 .build();
     }
 
