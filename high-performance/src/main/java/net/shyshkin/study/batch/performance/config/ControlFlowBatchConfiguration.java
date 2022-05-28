@@ -73,6 +73,8 @@ public class ControlFlowBatchConfiguration {
     private Flow biz4Flow() {
         return new FlowBuilder<SimpleFlow>("business-4-flow")
                 .start(biz4Step())
+                .on("FAILED")
+                .to(pagerDutyStep())
                 .build();
     }
 
@@ -108,6 +110,13 @@ public class ControlFlowBatchConfiguration {
     Step cleanUpStep() {
         return steps.get("cleanUpStep")
                 .tasklet(cleanUpTasklet)
+                .build();
+    }
+
+    @Bean
+    Step pagerDutyStep() {
+        return steps.get("pager-duty")
+                .tasklet(new PagerDutyTasklet())
                 .build();
     }
 
