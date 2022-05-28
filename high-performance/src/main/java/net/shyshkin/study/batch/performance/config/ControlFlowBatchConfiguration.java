@@ -73,6 +73,7 @@ public class ControlFlowBatchConfiguration {
     private Flow biz4Flow() {
         return new FlowBuilder<SimpleFlow>("business-4-flow")
                 .start(biz4Step())
+                .from(biz4Step()).on("*").end()
                 .on("FAILED")
                 .to(pagerDutyStep())
                 .build();
