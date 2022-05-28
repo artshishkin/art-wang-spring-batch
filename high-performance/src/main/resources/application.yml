@@ -1,6 +1,13 @@
 logging.level:
   net.shyshkin: debug
 app.processor.pause: 300
+
+app.tasklet.pause:
+  download: 500
+  file-process: 1000
+  business3: 1000
+  business4: 1000
+  clean-up: 100
 ---
 spring:
   config:
