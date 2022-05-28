@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.batch.performance.model.Product;
 import net.shyshkin.study.batch.performance.model.ProductSql;
+import net.shyshkin.study.batch.performance.reader.RangePartitioner;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -13,19 +14,16 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
-import org.springframework.batch.item.file.FlatFileItemWriter;
-import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import javax.sql.DataSource;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Slf4j
@@ -46,30 +44,42 @@ public class RangePartitionerBatchConfiguration {
     public Job rangePartitionerJob() {
         return jobs.get("range-partitioner-job")
                 .incrementer(new RunIdIncrementer())
-                .start(step1())
+                .start(partitionStep())
                 .build();
     }
 
     @Bean
-    Step step1() {
+    Step partitionStep() {
+        return steps.get("partitionStep")
+                .partitioner(slaveStep().getName(), new RangePartitioner())
+                .step(slaveStep())
+                .gridSize(20)
+                .taskExecutor(new SimpleAsyncTaskExecutor())
+                .build();
+    }
 
-        return steps.get("step1")
+    Step slaveStep() {
+        return steps.get("slaveStep")
                 .<ProductSql, Product>chunk(5)
-                .reader(itemReader())
+                .reader(pagingItemReader(null, null))
                 .processor(productProcessor())
-                .writer(flatFileItemWriter(null))
+                .writer(consoleWriter())
                 .build();
     }
 
     @Bean
-    ItemReader<ProductSql> itemReader() {
+    @StepScope
+    ItemReader<ProductSql> pagingItemReader(
+            @Value("#{stepExecutionContext['minValue']}") Long minValue,
+            @Value("#{stepExecutionContext['maxValue']}") Long maxValue) {
         return new JdbcPagingItemReaderBuilder<ProductSql>()
                 .name("pagingProductReader")
                 .dataSource(dataSource)
-                .pageSize(10)
+                .pageSize(1000)
                 .sortKeys(Map.of("prod_id", Order.ASCENDING))
                 .selectClause("prod_id, prod_name, prod_desc, price, unit")
                 .fromClause("from products")
+                .whereClause(String.format("where prod_id >= %d and prod_id <= %d", minValue, maxValue))
                 .beanRowMapper(ProductSql.class)
                 .build();
     }
@@ -90,22 +100,8 @@ public class RangePartitionerBatchConfiguration {
     }
 
     @Bean
-    @StepScope
-    FlatFileItemWriter<Product> flatFileItemWriter(@Value("#{jobParameters['csvOutputFile']}") FileSystemResource outputFile) {
-        return new FlatFileItemWriterBuilder<Product>()
-                .name("csvProductWriter")
-                .resource(outputFile)
-                .delimited()
-                .delimiter("|")
-                .names("productID", "productName", "price", "unit", "productDesc")
-                .append(false)
-                .headerCallback(writer -> writer.write("productID|productName|price|unit|productDesc"))
-                .footerCallback(writer -> writer.write(
-                                String.format("The file was created %s\n",
-                                        LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                        )
-                )
-                .build();
+    ItemWriter<Product> consoleWriter() {
+        return items -> items.forEach(item -> log.debug("{}", item));
     }
 
 
