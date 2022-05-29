@@ -39,8 +39,8 @@ public class ColumnRangePartitioner implements Partitioner {
 
         for (int i = 1; i <= gridSize; i++) {
             var executionContext = new ExecutionContext();
-            executionContext.put("minValue", start);
-            executionContext.put("maxValue", end);
+            executionContext.putLong("minValue", start);
+            executionContext.putLong("maxValue", end);
 
             result.put("partition" + i, executionContext);
             start = end + 1;
