@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -20,7 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @TestPropertySource(properties = {"app.processor.pause=10"})
 @ActiveProfiles("range-partitioner")
-@Sql(scripts = {"classpath:jdbc/products-data.sql"})
+@SqlGroup({
+        @Sql(scripts = {"classpath:jdbc/products-data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+        @Sql(statements = {"delete from products where 1=1"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+})
 class RangePartitionerJobTest extends AbstractJobTest {
 
 
